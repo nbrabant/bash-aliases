@@ -1,0 +1,71 @@
+#!/bin/bash
+
+alias gitck="git checkout"
+
+function gitn() {
+  ticket=${1}
+  prefix=${2}
+
+  if [ -z ${ticket} ]; then echo "ticket is not passed as first argument" && return 0; fi
+	if [ -z ${2} ]; then prefix='feature'; fi
+
+  # check branch existance
+  branches=$(git branch | grep ${prefix}/${ticket})
+  if [ -z ${branches} ]; then
+    echo "Creating and push branche"
+    git new ${prefix}/${ticket}
+    git push -u origin ${prefix}/${ticket}
+    return;
+  fi
+
+  echo "Rebase local branch";
+	git checkout ${prefix}/${ticket}
+	git pull
+}
+
+function gitparent() {
+	git show-branch \
+	| sed "s/].*//" \
+	| grep "\*" \
+	| grep -v "$(git rev-parse --abbrev-ref HEAD)" \
+	| head -n1 \
+	| sed "s/^.*\[//"
+}
+
+function git-mr() {
+  source ./.env
+
+  TARGET_BRANCH=${1}
+  if [[ -z ${1} ]]; then
+    TARGET_BRANCH=$(git symbolic-ref refs/remotes/origin/HEAD | sed 's@^refs/remotes/origin/@@')
+  fi
+
+  if [ -z ${GITLAB_PROJECT_ID} ]; then echo "GITLAB_PROJECT_ID not defined in .env file" && return 0; fi
+
+  SOURCE_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+  MR_TITLE="${SOURCE_BRANCH} into ${TARGET_BRANCH}"
+
+  BODY="{
+      \"id\": ${GITLAB_PROJECT_ID},
+      \"source_branch\": \"${SOURCE_BRANCH}\",
+      \"target_branch\": \"${TARGET_BRANCH}\",
+      \"remove_source_branch\": true,
+      \"title\": \"${MR_TITLE}\",
+      \"assignee_id\":\"${GITLAB_USER_ID}\"
+  }";
+
+  MR_LIST=`curl --silent "https://gitlab.com/api/v4/projects/${GITLAB_PROJECT_ID}/merge_requests?state=opened" --header "PRIVATE-TOKEN:${DND_GITLAB_PRIVATE_TOKEN}"`;
+  COUNTBRANCHES=`echo ${MR_LIST} | grep -o "\"source_branch\":\"${SOURCE_BRANCH}\"" | wc -l`;
+
+  if [ ${COUNTBRANCHES} -eq "0" ]; then
+    curl -X POST "https://gitlab.com/api/v4/projects/${GITLAB_PROJECT_ID}/merge_requests" \
+            --header "PRIVATE-TOKEN:${DND_GITLAB_PRIVATE_TOKEN}" \
+            --header "Content-Type: application/json" \
+            --data "${BODY}";
+
+    echo "Opened a new merge request: ${MR_TITLE} and assigned to you";
+    return;
+  fi
+
+  echo "No new merge request opened";
+}

@@ -1,0 +1,33 @@
+#!/bin/bash
+
+function php-cs() {
+  MODULE_NAME=${1}
+  docker compose exec fpm /bin/bash -c "./vendor/bin/phpcs -s --colors --extensions=php --standard=vendor/agencednd/phpcs-magento-2/PhpCodeSnifferM2/ruleset.xml app/code/Dnd/${MODULE_NAME}"
+}
+
+function php-md() {
+  MODULE_NAME=${1}
+  docker compose exec fpm /bin/bash -c "./vendor/bin/phpmd app/code/Dnd/${MODULE_NAME} ansi vendor/agencednd/phpmd/PhpMessDetector/ruleset.xml"
+}
+
+function php-unit() {
+  docker compose exec fpm /bin/bash -c './vendor/bin/phpunit -c dev/tests/unit/phpunit.xml'
+}
+
+function bcs() {
+  FILE_PATH=${1}
+  docker compose exec fpm /bin/bash -c "./bin/phpcs -s --colors --extensions=php --standard=phpcs/ruleset.xml src/${FILE_PATH}"
+}
+
+function bmd() {
+  FILE_PATH=${1}
+  docker compose exec fpm /bin/bash -c "./bin/phpmd src/${FILE_PATH} ansi phpmd/ruleset.xml"
+}
+
+function bunit() {
+  docker compose exec fpm /bin/bash -c './bin/phpunit --whitelist src --coverage-text tests'
+}
+
+function m2-qpatch-apply() {
+  docker compose exec fpm /bin/bash -c 'php ./vendor/bin/ece-patches apply'
+}

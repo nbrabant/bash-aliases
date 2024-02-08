@@ -1,0 +1,13 @@
+#!/bin/bash
+
+function xdebug-status () {
+	docker compose exec fpm xdebug status
+}
+
+function xdebug-enable() {
+	docker compose exec fpm xdebug enable
+}
+
+function xdebug-disable() {
+	docker compose exec fpm xdebug disable
+}

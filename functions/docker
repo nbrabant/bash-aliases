@@ -1,0 +1,26 @@
+#!/bin/bash
+
+alias dc-up="docker compose up"
+alias dc-down="docker compose down"
+alias docker-stop="docker stop $(docker ps -aq)"
+alias docker-prune="docker rm -f $(docker ps -aq)"
+
+function bash_fpm() {
+  docker compose exec fpm bash
+}
+
+function bash_db() {
+  docker compose exec db bash
+}
+
+function docker_logs() {
+  docker compose exec db bash
+}
+
+function docker_login() {
+  docker login -u ${DND_GITLAB_USERNAME} -p ${DND_GITLAB_PRIVATE_TOKEN} registry.gitlab.com
+}
+
+function dc-restart() {
+  docker-compose restart $1
+}

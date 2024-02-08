@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+function composer_satis_builder() {
+    php bin/satis build satis.json web/ -n
+}
+
+function composer-install() {
+    docker compose exec fpm /bin/bash -c 'composer install'
+}

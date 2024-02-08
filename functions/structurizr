@@ -1,0 +1,11 @@
+#!/bin/bash
+
+alias structurizr="/usr/local/Cellar/structurizr-cli/1.20.1/bin/structurizr-cli"
+
+function structurizr-export() {
+    structurizr export -workspace $1 -format $2
+}
+
+function structurizrpush() {
+    structurizr push -id 77201 -key 4d853252-95a4-44da-a62a-c3fac589f0b5 -secret 925beb43-6cb4-4f1e-ba06-a7059afbf0a0 -workspace $1
+}

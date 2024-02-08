@@ -1,0 +1,2 @@
+name = ${DND_GITLAB_USERNAME}
+email = ${DND_GITLAB_EMAIL}

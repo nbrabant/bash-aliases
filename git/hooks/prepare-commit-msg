@@ -1,0 +1,13 @@
+#!/bin/sh
+
+ORIG_MSG_FILE="$1"
+TEMP=`mktemp /tmp/git-XXXXX`
+AMEND_MESSAGE=$(grep 'see above' $ORIG_MSG_FILE)
+
+if [[ -z $AMEND_MESSAGE ]]; then
+  TICKETNO=`git branch | grep '^\*' | awk -F"/" '{print $2}'`
+
+  (echo "$TICKETNO: {MESSAGE}"; echo ""; echo "- see above"; echo "#- commit complements"; cat "$ORIG_MSG_FILE") > "$TEMP"
+  cat "$TEMP" > "$ORIG_MSG_FILE"
+fi
+

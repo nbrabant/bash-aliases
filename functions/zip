@@ -1,0 +1,6 @@
+#!/bin/bash
+
+function zip-clean() {
+  ARCHIVE_FILE=${1}
+  zip -r ${ARCHIVE_FILE} . -x '**/.DS_Store' -x '**/__MACOSX'
+}

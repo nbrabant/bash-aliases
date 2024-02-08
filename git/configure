@@ -1,0 +1,3 @@
+#!/bin/bash
+
+echo "Read files in config and apply git config --global for each lines"
